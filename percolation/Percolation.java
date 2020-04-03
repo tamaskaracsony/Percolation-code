@@ -4,14 +4,14 @@
  *  Description:
  **************************************************************************** */
 
-import java.util.Arrays;
-
 public class Percolation {
-    private int[][] grid;
+    private boolean[][] grid;
     private int n;
-    private int[] ids;
-    private int[] sz;
+    // private int[] ids;
+    // private int[] sz;
     private int len;
+    private WeightedQuickUnionFindwPathComp forprec;
+    private WeightedQuickUnionFindwPathComp forfull;
 
     //top id n*n bottom id n*n+1
     // creates n-by-n grid, with all sites initially blocked
@@ -20,18 +20,19 @@ public class Percolation {
             throw new IllegalArgumentException();
         }
         this.n = n;
-        grid = new int[n][n];
+        grid = new boolean[n][n];
         len = n * n + 2;
-
-        // init sizes
-        sz = new int[len];
-        Arrays.fill(sz, 1);
-
-        // init ids
-        ids = new int[len];
-        for (int i = 0; i < len; ++i) {
-            ids[i] = i;
-        }
+        forprec = new WeightedQuickUnionFindwPathComp(len);
+        forfull = new WeightedQuickUnionFindwPathComp(len);
+        // // init sizes
+        // sz = new int[len];
+        // Arrays.fill(sz, 1);
+        //
+        // // init ids
+        // ids = new int[len];
+        // for (int i = 0; i < len; ++i) {
+        //     ids[i] = i;
+        // }
 
     }
 
@@ -41,8 +42,8 @@ public class Percolation {
             throw new IllegalArgumentException();
         }
 
-        if (grid[row - 1][col - 1] == 0) {
-            grid[row - 1][col - 1] = 1;
+        if (!grid[row - 1][col - 1]) {
+            grid[row - 1][col - 1] = true;
             int pos = (n * (row - 1) + (col - 1));
             int posUp = (n * (row - 2) + (col - 1));
             int posDown = (n * (row) + (col - 1));
@@ -51,26 +52,32 @@ public class Percolation {
             // implement up down left right union
             // union for top line the top id
             if (row != 1 && isOpen(row - 1, col)) {
-                union(ids[pos], ids[posUp]);
+
+                forprec.union(forprec.ids[pos], forprec.ids[posUp]);
+                forfull.union(forfull.ids[pos], forfull.ids[posUp]);
             }
             if (row != n && isOpen(row + 1, col)) {
-                union(ids[pos], ids[posDown]);
+                forprec.union(forprec.ids[pos], forprec.ids[posDown]);
+                forfull.union(forfull.ids[pos], forfull.ids[posDown]);
             }
 
             if (row == 1) {
-                union(ids[len - 2], ids[pos]);
+                forprec.union(forprec.ids[pos], forprec.ids[len - 2]);
+                forfull.union(forfull.ids[pos], forfull.ids[len - 2]);
             }
 
             if (row == n) {
-                union(ids[len - 1], ids[pos]);
+                forprec.union(forprec.ids[pos], forprec.ids[len - 1]);
             }
 
             // left right
             if (col != 1 && isOpen(row, col - 1)) {
-                union(ids[pos], ids[posLeft]);
+                forprec.union(forprec.ids[pos], forprec.ids[posLeft]);
+                forfull.union(forfull.ids[pos], forfull.ids[posLeft]);
             }
             if (col != n && isOpen(row, col + 1)) {
-                union(ids[pos], ids[posRight]);
+                forprec.union(forprec.ids[pos], forprec.ids[posRight]);
+                forfull.union(forfull.ids[pos], forfull.ids[posRight]);
             }
 
         }
@@ -83,11 +90,7 @@ public class Percolation {
         if (row < 1 || row > n || col < 1 || col > n) {
             throw new IllegalArgumentException();
         }
-        boolean siteopen = false;
-        if (grid[row - 1][col - 1] == 1) {
-            siteopen = true;
-        }
-        return siteopen;
+        return grid[row - 1][col - 1];
     }
 
     // is the site (row, col) full?
@@ -97,7 +100,7 @@ public class Percolation {
         }
         // if connected to top then full get id of it and connected?
         boolean full = false;
-        if (connected(ids[(n * (row - 1) + (col - 1))], ids[len - 2])) {
+        if (forfull.connected(forfull.ids[(n * (row - 1) + (col - 1))], forfull.ids[len - 2])) {
             full = true;
         }
 
@@ -109,42 +112,44 @@ public class Percolation {
         int opensites = 0;
         for (int row = 0; row < grid.length; row += 1) {
             for (int col = 0; col < grid.length; col += 1) {
-                opensites += grid[row][col];
+                if (grid[row][col]) {
+                    opensites += 1;
+                }
             }
         }
         return opensites;
     }
 
-    private int root(int i) {
-        while (i != ids[i]) {
-            ids[i] = ids[ids[i]];
-            i = ids[i];
-        }
-        return i;
-    }
-
-    public boolean connected(int p, int q) {
-        return root(p) == root(q);
-    }
-
-    public void union(int p, int q) {
-        int i = root(p);
-        int j = root(q);
-        if (i == j) return;
-        if (sz[i] < sz[j]) {
-            ids[i] = j;
-            sz[j] += sz[i];
-        }
-        else {
-            ids[j] = i;
-            sz[i] += sz[j];
-        }
-    }
+    // private int root(int i) {
+    //     while (i != ids[i]) {
+    //         ids[i] = ids[ids[i]];
+    //         i = ids[i];
+    //     }
+    //     return i;
+    // }
+    //
+    // public boolean connected(int p, int q) {
+    //     return root(p) == root(q);
+    // }
+    //
+    // public void union(int p, int q) {
+    //     int i = root(p);
+    //     int j = root(q);
+    //     if (i == j) return;
+    //     if (sz[i] < sz[j]) {
+    //         ids[i] = j;
+    //         sz[j] += sz[i];
+    //     }
+    //     else {
+    //         ids[j] = i;
+    //         sz[i] += sz[j];
+    //     }
+    // }
 
     // does the system percolate?
     public boolean percolates() {
         boolean ispercolates = false;
-        if (connected(ids[n * n], ids[n * n + 1])) {
+        if (forprec.connected(forprec.ids[n * n], forprec.ids[n * n + 1])) {
             ispercolates = true;
         }
         return ispercolates;
