@@ -53,11 +53,11 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Application.PercolationStats">
+  <component name="RunManager" selected="Application.InteractivePercolationVisualizer">
     <configuration name="InteractivePercolationVisualizer" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="InteractivePercolationVisualizer" />
       <module name="Algorithms, Part I" />
-      <option name="PROGRAM_PARAMETERS" value="100" />
+      <option name="PROGRAM_PARAMETERS" value="10" />
       <method v="2" />
     </configuration>
     <configuration name="PercolationStats" type="Application" factoryName="Application">

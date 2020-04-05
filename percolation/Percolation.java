@@ -4,12 +4,19 @@
  *  Description:
  **************************************************************************** */
 
+import edu.princeton.cs.algs4.WeightedQuickUnionUF;
+
 public class Percolation {
     private boolean[][] grid;
-    private int n;
-    private int len;
-    private WeightedQuickUnionFindwPathComp forprec;
-    private WeightedQuickUnionFindwPathComp forfull;
+    private final int n;
+    private int opensites = 0;
+    private final int len;
+    private final WeightedQuickUnionUF forprec;
+    private final WeightedQuickUnionUF forfull;
+    private int virtualtopperc;
+    private int virtualtopfull;
+    private int virtualbottom;
+
 
     // top id n*n bottom id n*n+1
     // creates n-by-n grid, with all sites initially blocked
@@ -20,8 +27,11 @@ public class Percolation {
         this.n = n;
         grid = new boolean[n][n];
         len = n * n + 2;
-        forprec = new WeightedQuickUnionFindwPathComp(len);
-        forfull = new WeightedQuickUnionFindwPathComp(len);
+        forprec = new WeightedQuickUnionUF(len);
+        forfull = new WeightedQuickUnionUF(len);
+        virtualtopperc = forprec.find(len - 2);
+        virtualtopfull = forfull.find(len - 2);
+        virtualbottom = forprec.find(len - 1);
     }
 
     // opens the site (row, col) if it is not open already
@@ -31,41 +41,46 @@ public class Percolation {
         }
 
         if (!grid[row - 1][col - 1]) {
+            opensites += 1;
             grid[row - 1][col - 1] = true;
-            int pos = (n * (row - 1) + (col - 1));
+            int percpos = forprec.find((n * (row - 1) + (col - 1)));
+            int fullpos = forfull.find((n * (row - 1) + (col - 1)));
+
             int posUp = (n * (row - 2) + (col - 1));
             int posDown = (n * (row) + (col - 1));
             int posRight = (n * (row - 1) + (col));
             int posLeft = (n * (row - 1) + (col - 2));
+            virtualtopperc = forprec.find(len - 2);
+            virtualtopfull = forfull.find(len - 2);
+            virtualbottom = forprec.find(len - 1);
             // implement up down left right union
             // union for top line the top id
             if (row != 1 && isOpen(row - 1, col)) {
-
-                forprec.union(forprec.ids[pos], forprec.ids[posUp]);
-                forfull.union(forfull.ids[pos], forfull.ids[posUp]);
+                forprec.union(percpos, forprec.find(posUp));
+                forfull.union(fullpos, forfull.find(posUp));
             }
             if (row != n && isOpen(row + 1, col)) {
-                forprec.union(forprec.ids[pos], forprec.ids[posDown]);
-                forfull.union(forfull.ids[pos], forfull.ids[posDown]);
+                forprec.union(percpos, forprec.find(posDown));
+                forfull.union(fullpos, forfull.find(posDown));
             }
 
             if (row == 1) {
-                forprec.union(forprec.ids[pos], forprec.ids[len - 2]);
-                forfull.union(forfull.ids[pos], forfull.ids[len - 2]);
+                forprec.union(percpos, virtualtopperc);
+                forfull.union(fullpos, virtualtopfull);
             }
 
             if (row == n) {
-                forprec.union(forprec.ids[pos], forprec.ids[len - 1]);
+                forprec.union(percpos, virtualbottom);
             }
 
             // left right
             if (col != 1 && isOpen(row, col - 1)) {
-                forprec.union(forprec.ids[pos], forprec.ids[posLeft]);
-                forfull.union(forfull.ids[pos], forfull.ids[posLeft]);
+                forprec.union(percpos, forprec.find(posLeft));
+                forfull.union(fullpos, forfull.find(posLeft));
             }
             if (col != n && isOpen(row, col + 1)) {
-                forprec.union(forprec.ids[pos], forprec.ids[posRight]);
-                forfull.union(forfull.ids[pos], forfull.ids[posRight]);
+                forprec.union(percpos, forprec.find(posRight));
+                forfull.union(fullpos, forfull.find(posRight));
             }
         }
     }
@@ -85,7 +100,7 @@ public class Percolation {
         }
         // if connected to top then full get id of it and connected?
         boolean full = false;
-        if (forfull.connected(forfull.ids[(n * (row - 1) + (col - 1))], forfull.ids[len - 2])) {
+        if (forfull.connected(forfull.find((n * (row - 1) + (col - 1))), virtualtopfull)) {
             full = true;
         }
 
@@ -94,27 +109,15 @@ public class Percolation {
 
     // returns the number of open sites
     public int numberOfOpenSites() {
-        int opensites = 0;
-        for (int row = 0; row < grid.length; row += 1) {
-            for (int col = 0; col < grid.length; col += 1) {
-                if (grid[row][col]) {
-                    opensites += 1;
-                }
-            }
-        }
         return opensites;
     }
 
     // does the system percolate?
     public boolean percolates() {
         boolean ispercolates = false;
-        if (forprec.connected(forprec.ids[n * n], forprec.ids[n * n + 1])) {
+        if (forprec.connected(virtualtopperc, virtualbottom)) {
             ispercolates = true;
         }
         return ispercolates;
-    }
-
-    public static void main(String[] args) {
-
     }
 }
