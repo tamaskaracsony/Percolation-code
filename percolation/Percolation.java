@@ -29,9 +29,9 @@ public class Percolation {
         len = n * n + 2;
         forprec = new WeightedQuickUnionUF(len);
         forfull = new WeightedQuickUnionUF(len);
-        virtualtopperc = forprec.find(len - 2);
-        virtualtopfull = forfull.find(len - 2);
-        virtualbottom = forprec.find(len - 1);
+        virtualtopperc = n * n;
+        virtualtopfull = n * n;
+        virtualbottom = n * n + 1;
     }
 
     // opens the site (row, col) if it is not open already
@@ -50,9 +50,6 @@ public class Percolation {
             int posDown = (n * (row) + (col - 1));
             int posRight = (n * (row - 1) + (col));
             int posLeft = (n * (row - 1) + (col - 2));
-            virtualtopperc = forprec.find(len - 2);
-            virtualtopfull = forfull.find(len - 2);
-            virtualbottom = forprec.find(len - 1);
             // implement up down left right union
             // union for top line the top id
             if (row != 1 && isOpen(row - 1, col)) {
@@ -100,7 +97,7 @@ public class Percolation {
         }
         // if connected to top then full get id of it and connected?
         boolean full = false;
-        if (forfull.connected(forfull.find((n * (row - 1) + (col - 1))), virtualtopfull)) {
+        if (forfull.connected((n * (row - 1) + (col - 1)), virtualtopfull)) {
             full = true;
         }
 
