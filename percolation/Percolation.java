@@ -7,13 +7,11 @@
 public class Percolation {
     private boolean[][] grid;
     private int n;
-    // private int[] ids;
-    // private int[] sz;
     private int len;
     private WeightedQuickUnionFindwPathComp forprec;
     private WeightedQuickUnionFindwPathComp forfull;
 
-    //top id n*n bottom id n*n+1
+    // top id n*n bottom id n*n+1
     // creates n-by-n grid, with all sites initially blocked
     public Percolation(int n) {
         if (n <= 0) {
@@ -24,16 +22,6 @@ public class Percolation {
         len = n * n + 2;
         forprec = new WeightedQuickUnionFindwPathComp(len);
         forfull = new WeightedQuickUnionFindwPathComp(len);
-        // // init sizes
-        // sz = new int[len];
-        // Arrays.fill(sz, 1);
-        //
-        // // init ids
-        // ids = new int[len];
-        // for (int i = 0; i < len; ++i) {
-        //     ids[i] = i;
-        // }
-
     }
 
     // opens the site (row, col) if it is not open already
@@ -79,11 +67,8 @@ public class Percolation {
                 forprec.union(forprec.ids[pos], forprec.ids[posRight]);
                 forfull.union(forfull.ids[pos], forfull.ids[posRight]);
             }
-
         }
-
     }
-
 
     // is the site (row, col) open?
     public boolean isOpen(int row, int col) {
@@ -119,32 +104,6 @@ public class Percolation {
         }
         return opensites;
     }
-
-    // private int root(int i) {
-    //     while (i != ids[i]) {
-    //         ids[i] = ids[ids[i]];
-    //         i = ids[i];
-    //     }
-    //     return i;
-    // }
-    //
-    // public boolean connected(int p, int q) {
-    //     return root(p) == root(q);
-    // }
-    //
-    // public void union(int p, int q) {
-    //     int i = root(p);
-    //     int j = root(q);
-    //     if (i == j) return;
-    //     if (sz[i] < sz[j]) {
-    //         ids[i] = j;
-    //         sz[j] += sz[i];
-    //     }
-    //     else {
-    //         ids[j] = i;
-    //         sz[i] += sz[j];
-    //     }
-    // }
 
     // does the system percolate?
     public boolean percolates() {

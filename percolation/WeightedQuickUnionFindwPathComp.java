@@ -9,7 +9,6 @@ import java.util.Arrays;
 public class WeightedQuickUnionFindwPathComp {
     public int[] ids;
     public int[] sz;
-    private int len;
 
     public WeightedQuickUnionFindwPathComp(int len) {
         // init sizes
